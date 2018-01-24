@@ -13,8 +13,7 @@ class User(db.Model):
     password = db.Column (db.String (64))
     email = db.Column(db.String(32))
 
-    #与表结构无关,便于查询
-    roles = db.relationship ('Role',secondary = 'user_roles',backref = 'roles') # 与角色表建立多对多关系
+    roles= db.relationship('Role',secondary = 'user_roles',backref = 'user_role')
 
 
     def __repr__ (self):
@@ -28,7 +27,8 @@ class Role(db.Model):
     name = db.Column(db.String(100), unique=True)
 
     #与表结构无关，用于查询
-    auths = db.relationship ('Auth',secondary = 'role_auths',backref = 'auths') # 与权限表建立多对多关系
+    auths = db.relationship ('Auth',secondary = 'role_auths',backref = 'role_auth') # 与权限表建立多对多关系
+    users = db.relationship ('User',secondary = 'user_roles',backref = 'role_user') # 与角色表建立多对多关系
 
     def __repr__(self):
         return "<Role %r>" % self.name
@@ -45,7 +45,9 @@ class Auth(db.Model):
     menu_gp_id = db.Column (db.Integer,db.ForeignKey ('auths.id'),nullable = True) #与自身建立多对一关系
     group_id = db.Column(db.Integer,db.ForeignKey('groups.id'))# 与分组表建立的多对一关系
 
-    menu_gp = db.relationship ("Auth",remote_side = [id])
+    menu_gp = db.relationship ("Auth",remote_side = [id])#自关联
+    roles = db.relationship("Role",secondary = "role_auths",backref = "auth_role")
+    group = db.relationship("Group",backref = "group")
 
 
     def __repr__(self):
@@ -58,7 +60,7 @@ class Menu(db.Model):
     id = db.Column (db.Integer,primary_key = True)
     name = db.Column (db.String (32))
 
-    group = db.relationship ("Group",backref = 'group')
+
 
 
     def __repr__ (self):
@@ -73,7 +75,7 @@ class Group(db.Model):
 
     menu_id = db.Column(db.Integer,db.ForeignKey('menus.id'))#与菜单表建立外健关系
 
-    Auth = db.relationship("Auth",backref = 'auth')
+    menu = db.relationship ("Menu",backref = 'menu')
 
     def __repr__ (self):
         return "<Group %r>" % self.name
@@ -97,7 +99,7 @@ class Role_auths(db.Model):
 
     __tablename__ = 'role_auths'
     id = db.Column (db.Integer,primary_key = True)
-    user_id = db.Column (db.Integer,db.ForeignKey('users.id'))
+    role_id = db.Column (db.Integer,db.ForeignKey('roles.id'))
     auth_id = db.Column (db.Integer,db.ForeignKey('auths.id'))
 
     def __repr__ (self):
