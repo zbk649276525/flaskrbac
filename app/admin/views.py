@@ -18,6 +18,8 @@ def menu_add():
     '''添加菜单'''
 
     form = MenuForm()
+    if request.method == "GET":
+        form.menu_id.choices = [(v.id,v.name) for v in Menu.query.all ()]
     if form.validate_on_submit():
         data = form.data
         menu = Menu.query.filter_by(name = data.get("name")).count()
@@ -38,18 +40,14 @@ def menu_add():
 def group_add():
     '''添加组'''
     form= GroupForm()
-
-    form.menu_id.choices = [(v.id,v.name) for v in Menu.query.all()]
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate():
         group = Group(
             name = form.data.get("name"),
             menu_id = form.data.get("menu_id")
-
         )
         db.session.add(group)
         db.session.commit()
         flash("添加组名称成功!","ok")
         return redirect(url_for("admin.group_add"))
-
-
+    print(form.data.get("menu_id"))
     return render_template("admin/group_add.html",form = form)
