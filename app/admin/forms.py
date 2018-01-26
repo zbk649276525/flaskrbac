@@ -2,27 +2,87 @@
 #-*- coding:utf-8 -*-
 #date:"2018-01-25,14:01"
 from flask_wtf import FlaskForm
-from wtforms.validators import DataRequired
-from wtforms import StringField,SubmitField,SelectField,widgets
-from app.models import Menu
+from wtforms.validators import DataRequired,EqualTo,Email
+from wtforms import StringField,SubmitField,SelectField,PasswordField
+from app.models import Menu,Auth,Group
 
 
-
-
-class MenuForm(FlaskForm):
+class MenuForm (FlaskForm):
     '''菜单表单'''
-    name = StringField(label = "菜单名称",validators = [DataRequired("菜单不能为空!")],
-                       render_kw = {"class":"form-control","placeholder":"请输入菜单名称!"})
-    submit = SubmitField("提交",render_kw = {"class":"btn btn-primary"})
+    name = StringField (label = "菜单名称",validators = [DataRequired ("菜单不能为空!")],
+                        render_kw = {"class":"form-control","placeholder":"请输入菜单名称!"})
+    submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
 
-class GroupForm(FlaskForm):
+
+class GroupForm (FlaskForm):
     '''分组表单'''
-    name = StringField(label = "组名称",validators = [DataRequired("组名称不能为空!")],
-                       render_kw = {"class":"form-control","placeholder":"请输入组名称!"})
-    menu_id = SelectField(label = "所属菜单",validators = [DataRequired("请选择菜单!")],coerce = int,
-                         choices = [(v.id,v.name) for v in Menu.query.all()],render_kw = {"class":"form-control"})
-    submit = SubmitField("提交",render_kw = {"class":"btn btn-primary"})
+    name = StringField (label = "组名称",validators = [DataRequired ("组名称不能为空!")],
+                        render_kw = {"class":"form-control","placeholder":"请输入组名称!"})
+    menu_id = SelectField (label = "所属菜单",validators = [DataRequired ("请选择菜单!")],coerce = int,
+                           choices = [(v.id,v.name) for v in Menu.query.all ()],render_kw = {"class":"form-control"})
+    submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
 
     # def __init__(self,*args,**kwargs):
     #     self.menu_id.choices = [(v.id,v.name) for v in Menu.query.all()]
     #     super().__init__(*args,**kwargs)
+
+
+class UserAddForm (FlaskForm):
+    '''管理员添加表单'''
+    name = StringField (label = '管理员名称',validators = [DataRequired ('管理员名称不能为空!')],
+                        render_kw = {"class":"form-control","placeholder":"请输入管理员名称!"})
+    pwd = PasswordField (
+        label = "管理员密码",validators = [DataRequired ("请输入管理员密码!")],
+        render_kw = {"class":"form-control","placeholder":"请输入管理员密码!"}
+    )
+    repwd = PasswordField (
+        label = "管理员重复密码",
+        validators = [DataRequired ("请输入管理员重复密码!"),EqualTo (pwd,message = "两次密码不一致!")],
+        render_kw = {"class":"form-control","placeholder":"请输入管理员重复密码"},
+
+    )
+    email = StringField (
+        label = "邮箱",
+        validators = [DataRequired ("邮箱不能为空!"),Email ("邮箱格式不正确!")],
+        render_kw = {"class":"form-control","placeholder":"请输入邮箱!"}
+    )
+    submit = SubmitField (
+        "提交",
+        render_kw = {"class":"btn btn-primary"}
+    )
+
+
+class RoleAddForm (FlaskForm):
+    '''角色添加表单'''
+    name = StringField (label = "角色名称",validators = [DataRequired ("角色不能为空!")],
+                        render_kw = {"class":"form-control","placeholder":"请输入角色名称!"})
+    submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
+
+
+class AuthAddForm (FlaskForm):
+    '''权限添加表单'''
+    name = StringField (
+        label = "权限名称",validators = [DataRequired ("请输入权限名称!")],
+        render_kw = {"class":"form-control","placeholder":"请输入权限名称!"}
+    )
+    url = StringField (
+        label = "权限地址",validators = [DataRequired ("请输入权限地址!")],
+        render_kw = {"class":"form-control","placeholder":"请输入权限地址!"}
+    )
+    code = StringField (
+        label = "权限代码",validators = [DataRequired ("请输入权限代码名称!")],
+        render_kw = {"class":"form-control","placeholder":"请输入权限代码!"}
+    )
+
+    auth_id = SelectField (
+        label = "所属权限",coerce = None,
+        description = "所属权限id,自关联",
+        choices = [(v.id,v.name) for v in Auth.query.filter_by (menu_gp_id = "").all ()],
+              render_kw = {"class":"form-control"})
+    group_id = SelectField (
+        label = "所属组",validators = [DataRequired ("请选择所属组!")],coerce = int,
+        choices = ([(v.id,v.name) for v in Group.query.all ()] or None),render_kw = {"class":"form-control"}
+    )
+    submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
+
+

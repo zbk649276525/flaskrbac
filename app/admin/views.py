@@ -3,8 +3,8 @@
 #date:"2018-01-23,12:43"
 from flask import render_template,flash,redirect,url_for,request
 from . import admin
-from .forms import MenuForm,GroupForm
-from ..models import Menu,Group
+from .forms import MenuForm,GroupForm,UserAddForm,RoleAddForm,AuthAddForm
+from ..models import Menu,Group,Auth
 from app import db
 
 
@@ -18,8 +18,6 @@ def menu_add():
     '''添加菜单'''
 
     form = MenuForm()
-    if request.method == "GET":
-        form.menu_id.choices = [(v.id,v.name) for v in Menu.query.all ()]
     if form.validate_on_submit():
         data = form.data
         menu = Menu.query.filter_by(name = data.get("name")).count()
@@ -49,5 +47,34 @@ def group_add():
         db.session.commit()
         flash("添加组名称成功!","ok")
         return redirect(url_for("admin.group_add"))
-    print(form.data.get("menu_id"))
     return render_template("admin/group_add.html",form = form)
+
+@admin.route("/admin_add",methods = ["GET","POST"])
+def admin_add():
+    form = UserAddForm()
+    return render_template("admin/user_add.html",form = form)
+
+@admin.route("/role_add",methods = ["GET","POST"])
+def role_add():
+    form = RoleAddForm()
+    return render_template("admin/role_add.html",form = form)
+
+@admin.route("/auth_add",methods = ["GET","POST"])
+def auth_add():
+    form = AuthAddForm()
+    form.auth_id.validators = ""
+    if form.validate_on_submit():
+        auth = Auth(
+            name = form.data.get("name"),
+            url = form.data.get("url"),
+            code = form.data.get("code"),
+            menu_gp_id = form.data.get("auth_id",None),
+            group_id = form.data.get("group_id")
+        )
+        db.session.add(auth)
+        db.session.commit()
+        flash("添加权限成功!","ok")
+        return redirect(url_for("admin.auth_add"))
+    print(type(form.auth_id.coerce))
+    return render_template("admin/auth_add.html",form = form)
+
