@@ -58,6 +58,11 @@ class RoleAddForm (FlaskForm):
                         render_kw = {"class":"form-control","placeholder":"请输入角色名称!"})
     submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
 
+class xxx(SelectField):
+
+    def pre_validate (self,form):
+        pass
+
 
 class AuthAddForm (FlaskForm):
     '''权限添加表单'''
@@ -74,14 +79,14 @@ class AuthAddForm (FlaskForm):
         render_kw = {"class":"form-control","placeholder":"请输入权限代码!"}
     )
 
-    auth_id = SelectField (
-        label = "所属权限",coerce = None,
+    auth_id = xxx(
+        label = "所属权限",coerce = int,
         description = "所属权限id,自关联",
-        choices = [(v.id,v.name) for v in Auth.query.filter_by (menu_gp_id = "").all ()],
+        choices = [(v.id,v.name) for v in Auth.query.all ()],
               render_kw = {"class":"form-control"})
     group_id = SelectField (
         label = "所属组",validators = [DataRequired ("请选择所属组!")],coerce = int,
-        choices = ([(v.id,v.name) for v in Group.query.all ()] or None),render_kw = {"class":"form-control"}
+        choices = [(v.id,v.name) for v in Group.query.all ()],render_kw = {"class":"form-control"}
     )
     submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
 

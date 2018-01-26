@@ -62,19 +62,17 @@ def role_add():
 @admin.route("/auth_add",methods = ["GET","POST"])
 def auth_add():
     form = AuthAddForm()
-    form.auth_id.validators = ""
     if form.validate_on_submit():
-        auth = Auth(
-            name = form.data.get("name"),
-            url = form.data.get("url"),
-            code = form.data.get("code"),
-            menu_gp_id = form.data.get("auth_id",None),
-            group_id = form.data.get("group_id")
+        auth = Auth (
+            name = form.data.get ("name"),
+            url = form.data.get ("url"),
+            code = form.data.get ("code"),
+            menu_gp_id = form.data.get ("auth_id",None),
+            group_id = form.data.get ("group_id")
         )
-        db.session.add(auth)
-        db.session.commit()
-        flash("添加权限成功!","ok")
-        return redirect(url_for("admin.auth_add"))
-    print(type(form.auth_id.coerce))
+        db.session.add (auth)
+        db.session.commit ()
+        flash ("添加权限成功!","ok")
+        return redirect (url_for ("admin.auth_add"))
     return render_template("admin/auth_add.html",form = form)
 
