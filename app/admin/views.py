@@ -6,6 +6,7 @@ from . import admin
 from .forms import MenuForm,GroupForm,UserAddForm,RoleAddForm,AuthAddForm
 from ..models import Menu,Group,Auth,User,User_Roles,Role,Role_auths
 from app import db
+from werkzeug.security import generate_password_hash
 
 
 
@@ -66,7 +67,7 @@ def admin_add():
     if form.validate_on_submit():
         user = User(
             username = form.username.data,
-            password = form.password.data,
+            password = generate_password_hash(form.password.data),
             email = form.email.data,
         )
         db.session.add(user)

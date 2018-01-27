@@ -3,6 +3,7 @@
 #date:"2018-01-22,20:19"
 from datetime import datetime
 from . import db
+from werkzeug.security import check_password_hash
 
 #用户表
 class User(db.Model):
@@ -18,6 +19,10 @@ class User(db.Model):
 
     def __repr__ (self):
         return "<User %r>" % self.username
+
+    def check_pwd(self,pwd):
+        return check_password_hash(self.password,pwd)
+
 
 # 角色表
 class Role(db.Model):
