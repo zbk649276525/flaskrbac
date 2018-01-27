@@ -3,8 +3,8 @@
 #date:"2018-01-25,14:01"
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired,EqualTo,Email
-from wtforms import StringField,SubmitField,SelectField,PasswordField
-from app.models import Menu,Auth,Group
+from wtforms import StringField,SubmitField,SelectField,PasswordField,SelectMultipleField
+from app.models import Menu,Auth,Group,Role
 
 
 class MenuForm (FlaskForm):
@@ -29,22 +29,34 @@ class GroupForm (FlaskForm):
 
 class UserAddForm (FlaskForm):
     '''管理员添加表单'''
-    name = StringField (label = '管理员名称',validators = [DataRequired ('管理员名称不能为空!')],
-                        render_kw = {"class":"form-control","placeholder":"请输入管理员名称!"})
-    pwd = PasswordField (
-        label = "管理员密码",validators = [DataRequired ("请输入管理员密码!")],
+    username = StringField (
+        label = "管理员名称",
+        validators = [DataRequired ("请输入管理员名称!")],description = "管理员名称",
+        render_kw = {"class":"form-control","placeholder":"请输入管理员名称!"}
+    )
+    password = PasswordField (
+        label = "管理员密码",
+        validators = [DataRequired ("请输入管理员密码!")],description = "管理员密码!",
         render_kw = {"class":"form-control","placeholder":"请输入管理员密码!"}
     )
-    repwd = PasswordField (
-        label = "管理员重复密码",
-        validators = [DataRequired ("请输入管理员重复密码!"),EqualTo (pwd,message = "两次密码不一致!")],
-        render_kw = {"class":"form-control","placeholder":"请输入管理员重复密码"},
-
+    repwd = PasswordField(
+        label="管理员重复密码",
+        validators=[DataRequired("请输入管理员重复密码！"),EqualTo('password', message="两次密码不一致！")],
+        description="管理员重复密码",
+        render_kw={
+            "class": "form-control",
+            "placeholder": "请输入管理员重复密码！",
+        }
     )
     email = StringField (
         label = "邮箱",
         validators = [DataRequired ("邮箱不能为空!"),Email ("邮箱格式不正确!")],
         render_kw = {"class":"form-control","placeholder":"请输入邮箱!"}
+    )
+    role_id = SelectMultipleField (
+        label = "所属角色",
+        coerce = int,
+        choices = [(v.id,v.name) for v in Role.query.all ()],render_kw = {"class":"form-control"}
     )
     submit = SubmitField (
         "提交",
@@ -56,6 +68,12 @@ class RoleAddForm (FlaskForm):
     '''角色添加表单'''
     name = StringField (label = "角色名称",validators = [DataRequired ("角色不能为空!")],
                         render_kw = {"class":"form-control","placeholder":"请输入角色名称!"})
+
+    auth_id = SelectMultipleField (
+        label = "角色权限",
+        coerce = int,
+        choices = [(v.id,v.name) for v in Auth.query.all ()],render_kw = {"class":"form-control"}
+    )
     submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
 
 class xxx(SelectField):

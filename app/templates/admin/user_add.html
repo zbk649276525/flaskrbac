@@ -26,25 +26,25 @@
                         </div>
                         {% endfor %}
                         <div class="form-group">
-                            <label for="input_name">{{ form.name.label }}</label>
-                            {{ form.name }}
-                            {% for err in form.name.errors %}
+                            {{ form.username.label }}
+                            {{ form.username }}
+                            {% for err in form.username.errors %}
                             <div class="col-md-12">
                                 <font style="color:red">{{ err }}</font>
                             </div>
                             {% endfor %}
                         </div>
                         <div class="form-group">
-                            <label for="input_pwd">{{ form.pwd.label }}</label>
-                            {{ form.pwd }}
-                            {% for err in form.pwd.errors %}
+                            {{ form.password.label }}
+                            {{ form.password }}
+                            {% for err in form.password.errors %}
                             <div class="col-md-12">
                                 <font style="color:red">{{ err }}</font>
                             </div>
                             {% endfor %}
                         </div>
                         <div class="form-group">
-                            <label for="input_re_pwd">{{ form.repwd.label }}</label>
+                            {{ form.repwd.label }}
                             {{ form.repwd }}
                             {% for err in form.repwd.errors %}
                             <div class="col-md-12">
@@ -53,9 +53,18 @@
                             {% endfor %}
                         </div>
                         <div class="form-group">
-                            <label for="input_role_id">{{ form.email.label }}</label>
+                            {{ form.email.label }}
                             {{ form.email }}
                             {% for err in form.email.errors %}
+                            <div class="col-md-12">
+                                <font style="color:red">{{ err }}</font>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.role_id.label }}
+                            {{ form.role_id }}
+                            {% for err in form.role_id.errors %}
                             <div class="col-md-12">
                                 <font style="color:red">{{ err }}</font>
                             </div>
