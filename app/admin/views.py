@@ -3,12 +3,18 @@
 #date:"2018-01-23,12:43"
 from flask import render_template,flash,redirect,url_for,request
 from . import admin
-from .forms import MenuForm,GroupForm,UserAddForm,RoleAddForm,AuthAddForm
+from .forms import MenuForm,GroupForm,UserAddForm,RoleAddForm,AuthAddForm,LoginForm
 from ..models import Menu,Group,Auth,User,User_Roles,Role,Role_auths
 from app import db
 from werkzeug.security import generate_password_hash
 
 
+
+@admin.route("/login",methods = ["GET","POST"])
+def login():
+    form = LoginForm()
+
+    return render_template("admin/login.html",form = form)
 
 @admin.route("/")
 def index():
@@ -28,7 +34,6 @@ def menu_add():
         menu = Menu(
             name = data.get("name")
         )
-        print(data.items())
         db.session.add(menu)
         db.session.commit()
         flash("菜单添加成功!",'ok')
@@ -61,8 +66,8 @@ def group_add():
         return redirect(url_for("admin.group_add"))
     return render_template("admin/group_add.html",form = form)
 
-@admin.route("/admin/add",methods = ["GET","POST"])
-def admin_add():
+@admin.route("/user/add",methods = ["GET","POST"])
+def user_add():
     form = UserAddForm()
     if form.validate_on_submit():
         user = User(
@@ -72,16 +77,18 @@ def admin_add():
         )
         db.session.add(user)
         db.session.commit()
-
         if form.role_id.data:
-            user_role = User_Roles(
-                user_id = user.id,
-                role_id = form.role_id.data
-            )
-            db.session.add(user_role)
-            db.session.commit()
+            user_roles = []
+            for i in form.data.get ("role_id"):
+                user_role = User_Roles (
+                    user_id = user.id,
+                    role_id = i
+                )
+                user_roles.append (user_role)
+            db.session.add_all (user_roles)
+            db.session.commit ()
         flash("添加管理员成功!","ok")
-        return redirect(url_for("admin.admin_add"))
+        return redirect(url_for("admin.user_add"))
     return render_template("admin/user_add.html",form = form)
 
 @admin.route("/user/list/<int:page>/",methods = ["GET"])
@@ -94,35 +101,56 @@ def user_list(page = None):
     return render_template("admin/user_list.html",page_data = page_data)
 
 
-
 @admin.route("/role/add",methods = ["GET","POST"])
 def role_add():
     form = RoleAddForm()
     if form.validate_on_submit():
-        role = Role(name = form.name.data)
-        db.session.add(role)
-        db.session.commit()
-        if form.auth_id.data:
-            role_auth = Role_auths(
-                role_id = role.id,
-                auth_id = form.auth_id.data
-            )
-            db.session.add(role_auth)
+        data = form.data
+        try:
+            role = Role.query.filter_by (name = data.get ("name")).count ()
+            if role:
+                flash("角色名称已经存在!","err")
+                return redirect(url_for("admin.role_add"))
+            role = Role(name = data.get("name"))
+            db.session.add(role)
             db.session.commit()
-        flash("角色添加成功!","ok")
+            if form.auth_id.data:
+                role_auths = []
+                for i in data.get("auth_id"):
+                    role_auth = Role_auths(
+                        role_id = role.id,
+                        auth_id = i
+                    )
+                    role_auths.append(role_auth)
+                db.session.add_all(role_auths)
+                db.session.commit()
+            flash("角色添加成功!","ok")
+        except Exception as e:
+            db.session.rollback()
+            flash("角色添加失败","err")
     return render_template("admin/role_add.html",form = form)
 
 @admin.route("/auth/add",methods = ["GET","POST"])
 def auth_add():
     form = AuthAddForm()
     if form.validate_on_submit():
-        auth = Auth (
-            name = form.data.get ("name"),
-            url = form.data.get ("url"),
-            code = form.data.get ("code"),
-            menu_gp_id = form.data.get ("auth_id",None),
-            group_id = form.data.get ("group_id")
-        )
+        menu_gp_id = form.data.get ("auth_id")
+        if not menu_gp_id:
+            auth = Auth (
+                name = form.data.get ("name"),
+                url = form.data.get ("url"),
+                code = form.data.get ("code"),
+                menu_gp_id = None,
+                group_id = form.data.get ("group_id")
+            )
+        else:
+            auth = Auth (
+                name = form.data.get ("name"),
+                url = form.data.get ("url"),
+                code = form.data.get ("code"),
+                menu_gp_id = menu_gp_id,
+                group_id = form.data.get ("group_id")
+            )
         db.session.add (auth)
         db.session.commit ()
         flash ("添加权限成功!","ok")

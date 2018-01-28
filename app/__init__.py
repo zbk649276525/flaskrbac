@@ -4,11 +4,13 @@
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
+
 app = Flask(__name__)
 from config import Config
 app.config.from_object(Config)
 Config.init_app(app)
 db = SQLAlchemy(app)
+
 from .models import Auth,Role,User,Group,Menu
 
 from .admin import admin as admin_blueprint

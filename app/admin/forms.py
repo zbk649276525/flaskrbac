@@ -2,9 +2,9 @@
 #-*- coding:utf-8 -*-
 #date:"2018-01-25,14:01"
 from flask_wtf import FlaskForm
-from wtforms.validators import DataRequired,EqualTo,Email
-from wtforms import StringField,SubmitField,SelectField,PasswordField,SelectMultipleField
-from app.models import Menu,Auth,Group,Role
+from wtforms.validators import DataRequired,EqualTo,Email,ValidationError,Length
+from wtforms import StringField,SubmitField,SelectField,PasswordField,SelectMultipleField,widgets
+from app.models import Menu,Auth,Group,Role,User
 
 
 class MenuForm (FlaskForm):
@@ -72,7 +72,7 @@ class RoleAddForm (FlaskForm):
     auth_id = SelectMultipleField (
         label = "角色权限",
         coerce = int,
-        choices = [(v.id,v.name) for v in Auth.query.all ()],render_kw = {"class":"form-control"}
+        choices = [(v.id,v.name) for v in Auth.query.all()],render_kw = {"class":"form-control"}
     )
     submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
 
@@ -100,7 +100,7 @@ class AuthAddForm (FlaskForm):
     auth_id = xxx(
         label = "所属权限",coerce = int,
         description = "所属权限id,自关联",
-        choices = [(v.id,v.name) for v in Auth.query.all ()],
+        choices = [(v.id,v.name) for v in Auth.query.filter_by(menu_gp_id=None).all()],
               render_kw = {"class":"form-control"})
     group_id = SelectField (
         label = "所属组",validators = [DataRequired ("请选择所属组!")],coerce = int,
@@ -108,4 +108,22 @@ class AuthAddForm (FlaskForm):
     )
     submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
 
+
+class LoginForm(FlaskForm):
+    '''管理员登录表单'''
+    account = StringField (
+        label = "用户名",validators = [DataRequired ("请输入用户名!")],
+        render_kw = {"class":"form-control","placeholder":"请输入账号！"}
+    )
+    pwd = PasswordField (
+        label = "密码",validators = [DataRequired ("请输入密码！")],
+        render_kw = {"class":"form-control","placeholder":"请输入密码！"}
+    )
+    submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary btn-block btn-flat"}
+    )
+    def validate_account(self,field):
+        account = field.data
+        user = User.query.filter_by(username =  account).count()
+        if not user:
+            raise ValidationError("账号不存在!")
 
