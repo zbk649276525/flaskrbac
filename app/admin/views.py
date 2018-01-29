@@ -1,19 +1,27 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 #date:"2018-01-23,12:43"
-from flask import render_template,flash,redirect,url_for,request
+from flask import render_template,flash,redirect,url_for,request,session
 from . import admin
 from .forms import MenuForm,GroupForm,UserAddForm,RoleAddForm,AuthAddForm,LoginForm
 from ..models import Menu,Group,Auth,User,User_Roles,Role,Role_auths
 from app import db
 from werkzeug.security import generate_password_hash
+from ..service.init_permission import init_permission
+from . import flask_rbac
 
 
 
 @admin.route("/login",methods = ["GET","POST"])
 def login():
     form = LoginForm()
-
+    if form.validate_on_submit():
+        user = User.query.filter_by(username = form.data.get("account")).first()
+        if not user.check_pwd(form.data.get("pwd")):
+            flash("用户名或密码错误!","err")
+            return redirect (url_for ("admin.login"))
+        init_permission(user,session)
+        return redirect(request.args.get("next"),url_for("admin.index"))
     return render_template("admin/login.html",form = form)
 
 @admin.route("/")
