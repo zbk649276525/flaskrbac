@@ -13,6 +13,7 @@ class User(db.Model):
     username = db.Column (db.String (64),unique = True)
     password = db.Column (db.String (100))
     email = db.Column(db.String(32))
+    face = db.Column (db.String (255))  # 头像
 
     roles= db.relationship('Role',secondary = 'user_roles',backref = 'user_role')
 

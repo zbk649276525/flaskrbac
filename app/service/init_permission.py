@@ -39,7 +39,12 @@ def init_permission(user,session):
             "menu_title":item ["auth_menu_name"]
         }
         sub_permission.append (tpl)
-    session[current_app.config["PERMISSION_MENU_KEY"]] = sub_permission
+
+    sub_permissions = []
+    for item in sub_permission:
+        if item not in sub_permissions:
+            sub_permissions.append(item)
+    session[current_app.config["PERMISSION_MENU_KEY"]] = sub_permissions
 
 
     result = {}
