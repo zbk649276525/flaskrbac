@@ -44,7 +44,6 @@ def init_permission(user,session):
 
     result = {}
     for item in permission_list:
-        print(item)
         group_id = item["auth_group_id"]
         code = item["auth_code"]
         url = item["auth_url"]

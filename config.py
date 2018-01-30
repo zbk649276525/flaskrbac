@@ -14,7 +14,7 @@ class Config:
     SQLALCHEMY_COMMIT_TEARDOWN = True
     PERMISSION_URL_DICT_KEY = "permission_url_dict_key"
     PERMISSION_MENU_KEY = "permission_menu_key"
-    VALID_URL = ["/login/",]
+    VALID_URL = ["/admin/login/","/static.*"]
 
 
 

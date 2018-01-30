@@ -8,11 +8,11 @@ from ..models import Menu,Group,Auth,User,User_Roles,Role,Role_auths
 from app import db
 from werkzeug.security import generate_password_hash
 from ..service.init_permission import init_permission
-from . import flask_rbac
+from app.middlewares import flask_rbac
 
 
 
-@admin.route("/login",methods = ["GET","POST"])
+@admin.route("/login/",methods = ["GET","POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -21,14 +21,14 @@ def login():
             flash("用户名或密码错误!","err")
             return redirect (url_for ("admin.login"))
         init_permission(user,session)
-        return redirect(request.args.get("next"),url_for("admin.index"))
+        return redirect(request.args.get("next")or url_for("admin.index"))
     return render_template("admin/login.html",form = form)
 
-@admin.route("/")
+@admin.route("/index/")
 def index():
     return render_template('admin/layout.html')
 
-@admin.route("/menu/add",methods = ["GET","POST"])
+@admin.route("/menu/add/",methods = ["GET","POST"])
 def menu_add():
     '''添加菜单'''
 
@@ -59,7 +59,7 @@ def menu_list(page = None):
     return render_template("admin/menu_list.html",page_data = page_data)
 
 
-@admin.route("/group/add",methods = ["GET","POST"])
+@admin.route("/group/add/",methods = ["GET","POST"])
 def group_add():
     '''添加组'''
     form= GroupForm()
@@ -74,7 +74,7 @@ def group_add():
         return redirect(url_for("admin.group_add"))
     return render_template("admin/group_add.html",form = form)
 
-@admin.route("/user/add",methods = ["GET","POST"])
+@admin.route("/user/add/",methods = ["GET","POST"])
 def user_add():
     form = UserAddForm()
     if form.validate_on_submit():
@@ -109,7 +109,7 @@ def user_list(page = None):
     return render_template("admin/user_list.html",page_data = page_data)
 
 
-@admin.route("/role/add",methods = ["GET","POST"])
+@admin.route("/role/add/",methods = ["GET","POST"])
 def role_add():
     form = RoleAddForm()
     if form.validate_on_submit():
@@ -138,7 +138,7 @@ def role_add():
             flash("角色添加失败","err")
     return render_template("admin/role_add.html",form = form)
 
-@admin.route("/auth/add",methods = ["GET","POST"])
+@admin.route("/auth/add/",methods = ["GET","POST"])
 def auth_add():
     form = AuthAddForm()
     if form.validate_on_submit():
