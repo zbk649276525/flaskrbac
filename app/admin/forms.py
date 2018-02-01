@@ -3,7 +3,7 @@
 #date:"2018-01-25,14:01"
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired,EqualTo,Email,ValidationError,Length
-from wtforms import StringField,SubmitField,SelectField,PasswordField,SelectMultipleField,widgets
+from wtforms import StringField,SubmitField,SelectField,PasswordField,SelectMultipleField
 from app.models import Menu,Auth,Group,Role,User
 
 
@@ -19,12 +19,13 @@ class GroupForm (FlaskForm):
     name = StringField (label = "组名称",validators = [DataRequired ("组名称不能为空!")],
                         render_kw = {"class":"form-control","placeholder":"请输入组名称!"})
     menu_id = SelectField (label = "所属菜单",validators = [DataRequired ("请选择菜单!")],coerce = int,
-                           choices = [(v.id,v.name) for v in Menu.query.all ()],render_kw = {"class":"form-control"})
+                           render_kw = {"class":"form-control"})
     submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
 
-    # def __init__(self,*args,**kwargs):
-    #     self.menu_id.choices = [(v.id,v.name) for v in Menu.query.all()]
-    #     super().__init__(*args,**kwargs)
+    def __init__(self,*args,**kwargs):
+        super ().__init__ (*args,**kwargs)
+        self.menu_id.choices = [(v.id,v.name) for v in Menu.query.all()]
+
 
 
 class UserAddForm (FlaskForm):
@@ -56,12 +57,16 @@ class UserAddForm (FlaskForm):
     role_id = SelectMultipleField (
         label = "所属角色",
         coerce = int,
-        choices = [(v.id,v.name) for v in Role.query.all ()],render_kw = {"class":"form-control"}
+        render_kw = {"class":"form-control"}
     )
     submit = SubmitField (
         "提交",
         render_kw = {"class":"btn btn-primary"}
     )
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.role_id.choices = [(v.id,v.name) for v in Role.query.all ()]
 
 
 class RoleAddForm (FlaskForm):
@@ -72,9 +77,13 @@ class RoleAddForm (FlaskForm):
     auth_id = SelectMultipleField (
         label = "角色权限",
         coerce = int,
-        choices = [(v.id,v.name) for v in Auth.query.all()],render_kw = {"class":"form-control"}
+        render_kw = {"class":"form-control"}
     )
     submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.auth_id.choices = [(v.id,v.name) for v in Auth.query.all()]
 
 class xxx(SelectField):
 
@@ -99,14 +108,20 @@ class AuthAddForm (FlaskForm):
 
     auth_id = xxx(
         label = "所属权限",coerce = int,
-        description = "所属权限id,自关联",
-        choices = [(v.id,v.name) for v in Auth.query.filter_by(menu_gp_id=None).all()],
+        description = "所属权限id,自关联" ,
               render_kw = {"class":"form-control"})
     group_id = SelectField (
         label = "所属组",validators = [DataRequired ("请选择所属组!")],coerce = int,
-        choices = [(v.id,v.name) for v in Group.query.all ()],render_kw = {"class":"form-control"}
+        render_kw = {"class":"form-control"}
     )
     submit = SubmitField ("提交",render_kw = {"class":"btn btn-primary"})
+
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.auth_id.choices = [(v.id,v.name) for v in Auth.query.filter_by(menu_gp_id=None).all()]
+        self.group_id.choices = [(v.id,v.name) for v in Group.query.all ()]
+
 
 
 class LoginForm(FlaskForm):

@@ -17,7 +17,6 @@ def process_request():
         regex = "^{0}$".format (url) #加上正则
         if re.match (regex,current_url): # 将白名单的url和当前用户请求的url匹配
             return None#return None 表示继续往内层中间件走
-
     permission_dict = session.get(current_app.config["PERMISSION_URL_DICT_KEY"])#获取放置在session中的当前用户的权限
     if not permission_dict:#如果session中没有值，说明用户还未登陆，跳转到登录页面
         return redirect (url_for("admin.login"))

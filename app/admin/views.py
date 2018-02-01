@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash
 from ..service.init_permission import init_permission
 from app.middlewares import flask_rbac
 from app.tempaltetags.rbac_menu import menu_html
+from app.tempaltetags.page_auth_list import Base_permission_list
 
 
 
@@ -57,10 +58,11 @@ def menu_add():
 def menu_list(page = None):
     '''菜单列表'''
     menu_dict = menu_html ()
+    auth_list = Base_permission_list (request.permission_code_list)
     if not page:
         page = 1
     page_data = Menu.query.paginate(page = page,per_page = 10)
-    return render_template("admin/menu_list.html",page_data = page_data,menu_dict = menu_dict)
+    return render_template("admin/menu_list.html",page_data = page_data,menu_dict = menu_dict,auth_list = auth_list)
 
 
 @admin.route("/group/add/",methods = ["GET","POST"])
@@ -110,10 +112,11 @@ def user_add():
 def user_list(page = None):
     '''权限列表'''
     menu_dict = menu_html ()
+    auth_list = Base_permission_list (request.permission_code_list)
     if not page:
         page = 1
     page_data = User.query.paginate(page = page,per_page = 10)
-    return render_template("admin/user_list.html",page_data = page_data,menu_dict = menu_dict)
+    return render_template("admin/user_list.html",page_data = page_data,menu_dict = menu_dict,auth_list = auth_list)
 
 
 @admin.route("/role/add/",methods = ["GET","POST"])
@@ -145,6 +148,20 @@ def role_add():
             db.session.rollback()
             flash("角色添加失败","err")
     return render_template("admin/role_add.html",form = form,menu_dict = menu_dict)
+
+@admin.route("/role/list/<int:page>/",methods = ["GET"])
+@admin.route("/role/list/",methods = ["GET"])
+def role_list(page = None):
+    '''权限列表'''
+    menu_dict = menu_html ()
+    auth_list = Base_permission_list (request.permission_code_list)
+    if not page:
+        page = 1
+    page_data = Role.query.paginate(page = page,per_page = 10)
+    return render_template("admin/role_list.html",page_data = page_data,menu_dict = menu_dict,auth_list = auth_list)
+
+
+
 
 @admin.route("/auth/add/",methods = ["GET","POST"])
 def auth_add():
@@ -179,9 +196,12 @@ def auth_add():
 @admin.route("/auth/list/",methods = ["GET"])
 def auth_list(page = None):
     '''权限列表'''
+    print(page)
     menu_dict = menu_html ()
+    auth_list = Base_permission_list (request.permission_code_list)
     if not page:
         page = 1
+    page = int(request.args.get("page", 1))
     page_data = Auth.query.paginate(page = page,per_page = 10)
-    return render_template("admin/auth_list.html",page_data = page_data,menu_dict = menu_dict)
+    return render_template("admin/auth_list.html",page_data = page_data,menu_dict = menu_dict,auth_list = auth_list)
 

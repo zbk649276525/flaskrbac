@@ -5,7 +5,7 @@
     <section class="content-header">
         <h1>RBAC权限管理系统</h1>
         <ol class="breadcrumb">
-            <li><a href="#"><i class="fa fa-dashboard"></i> 权限管理</a></li>
+            <li><a href="{{ url_for('admin.index') }}"><i class="fa fa-dashboard"></i> 权限管理</a></li>
             <li class="active">菜单列表</li>
         </ol>
     </section>
@@ -37,12 +37,18 @@
                             </tr>
                             {% for v in page_data.items %}
                                 <tr>
-                                    <td>{{ v.id }}</td>
+                                    <td>{{ loop.index }}</td>
                                     <td>{{ v.name }}</td>
                                     <td>
-                                        <a href="" class="label label-success">编辑</a>
+                                        {% if auth_list.has_edit %}
+                                            <a href="" class="label label-success">编辑</a>
+                                        {% endif %}
                                         &nbsp;
-                                        <a href="" class="label label-danger">删除</a>
+                                        {% if auth_list.has_delete() %}
+                                            <a href="" class="label label-danger">删除</a>
+                                        {% else %}
+                                        -------
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -50,7 +56,7 @@
                         </table>
                     </div>
                     <div class="box-footer clearfix">
-                        {{ pg.page(page_data,'admin.menu_list') }}
+                        {{ pg.page(page_data) }}
                     </div>
                 </div>
             </div>

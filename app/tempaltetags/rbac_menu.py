@@ -21,9 +21,6 @@ def menu_html():
         if not item["menu_gp_id"]:  #说明是菜单
             menu_dict[item["id"]] = item # 以id 为健，item本身为value构建字典
 
-
-
-
     for item in menu_list:
         regex = "^{0}$".format(item["url"])
         if re.match(regex,current_url):
@@ -36,6 +33,7 @@ def menu_html():
 
     result = {}
     for item in menu_dict.values():
+
         active = item.get("active")
         menu_id = item["menu_id"]
         if menu_id in result:
@@ -48,6 +46,5 @@ def menu_html():
                 "children":[
                     {"title":item["title"],"url":item["url"],"active":active}
                 ]
-
             }
     return result
