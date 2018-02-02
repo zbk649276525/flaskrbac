@@ -16,7 +16,6 @@ def init_permission (user,session):
             tmp = {}
             tmp ["auth_id"] = auth.id#权限
             tmp ["auth_name"] = auth.name#权限名称
-            # tmp ["auth_url"] = auth.url#权限url
             tmp ["auth_url"] = auth.url#权限url
             tmp ["auth_code"] = auth.code#权限代码
             tmp ["auth_group_id"] = auth.group_id#权限所属组id

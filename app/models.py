@@ -14,7 +14,6 @@ class User(db.Model):
     password = db.Column (db.String (100))
     email = db.Column(db.String(32))
     face = db.Column (db.String (255))  # 头像
-
     roles= db.relationship('Role',secondary = 'user_roles',backref = 'user_role')
 
 
@@ -48,12 +47,18 @@ class Auth(db.Model):
     url = db.Column(db.String(255), unique=True)
     code = db.Column(db.String(32))
 
+    __table_args = (
+        db.UniqueConstraint("name","url")
+    )
+
     menu_gp_id = db.Column (db.Integer,db.ForeignKey ('auths.id'),nullable = True) #与自身建立多对一关系
     group_id = db.Column(db.Integer,db.ForeignKey('groups.id'))# 与分组表建立的多对一关系
 
     menu_gp = db.relationship ("Auth",remote_side = [id])#自关联
     roles = db.relationship("Role",secondary = "role_auths",backref = "auth_role")
     group = db.relationship("Group",backref = "group")
+
+
 
 
     def __repr__(self):

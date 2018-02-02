@@ -125,6 +125,10 @@ def role_add():
     form = RoleAddForm()
     if form.validate_on_submit():
         data = form.data
+        role_name = Role.query.filter_by(name=data.get("name")).count()
+        if role_name:
+            flash("角色已存在!","err")
+            return redirect(url_for("admin.role_add"))
         try:
             role = Role.query.filter_by (name = data.get ("name")).count ()
             if role:
@@ -168,6 +172,11 @@ def auth_add():
     menu_dict = menu_html ()
     form = AuthAddForm()
     if form.validate_on_submit():
+        auth_name = Auth.query.filter_by(name = form.data.get("name")).count()
+        auth_url = Auth.query.filter_by(url = form.data.get ("url")).count()
+        if auth_name or auth_url:
+            flash("权限已存在,请勿重复添加!","err")
+            return redirect(url_for("admin.auth_add"))
         menu_gp_id = form.data.get ("auth_id")
         if not menu_gp_id:
             auth = Auth (
@@ -185,8 +194,16 @@ def auth_add():
                 menu_gp_id = menu_gp_id,
                 group_id = form.data.get ("group_id")
             )
-        db.session.add (auth)
+        db.session.add(auth)
         db.session.commit ()
+        #超级管理员拥有所所有的权限
+        role = Role.query.filter_by(name="超级管理员").first()
+        role_auth = Role_auths(
+            role_id= role.id,
+            auth_id = auth.id
+        )
+        db.session.add(role_auth)
+        db.session.commit()
         flash ("添加权限成功!","ok")
         return redirect (url_for ("admin.auth_add"))
     return render_template("admin/auth_add.html",form = form,menu_dict = menu_dict)
@@ -196,7 +213,6 @@ def auth_add():
 @admin.route("/auth/list/",methods = ["GET"])
 def auth_list(page = None):
     '''权限列表'''
-    print(page)
     menu_dict = menu_html ()
     auth_list = Base_permission_list (request.permission_code_list)
     if not page:

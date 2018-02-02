@@ -40,7 +40,7 @@
                                     <td>{{ loop.index }}</td>
                                     <td>{{ v.name }}</td>
                                     <td>
-                                        {% if auth_list.has_edit %}
+                                        {% if auth_list.has_edit() %}
                                             <a href="" class="label label-success">编辑</a>
                                         {% endif %}
                                         &nbsp;
