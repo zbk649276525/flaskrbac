@@ -91,7 +91,8 @@
             </form>
             <ul class="sidebar-menu">
                 <li class="header">管理菜单</li>
-                {% for v,cate in menu_dict.items() %}
+
+                {% for v,cate in g.menu_dict.items() %}
                     <li class="treeview" id="g-1">
                         <a href="#">
                             <i class="fa fa-home" aria-hidden="true"></i>

@@ -9,7 +9,6 @@ from app import db
 from werkzeug.security import generate_password_hash
 from ..service.init_permission import init_permission
 from app.middlewares import flask_rbac
-from app.tempaltetags.rbac_menu import menu_html
 from app.tempaltetags.page_auth_list import Base_permission_list
 
 
@@ -29,13 +28,12 @@ def login():
 
 @admin.route("/index/")
 def index():
-    menu_dict = menu_html ()
-    return render_template('admin/layout.html',menu_dict = menu_dict)
+
+    return render_template('admin/layout.html')
 
 @admin.route("/menu/add/",methods = ["GET","POST"])
 def menu_add():
     '''添加菜单'''
-    menu_dict = menu_html ()
     form = MenuForm()
     if form.validate_on_submit():
         data = form.data
@@ -46,29 +44,28 @@ def menu_add():
         menu = Menu(
             name = data.get("name")
         )
+        print(menu)
         db.session.add(menu)
         db.session.commit()
         flash("菜单添加成功!",'ok')
         return redirect(url_for("admin.menu_add"))
-    return render_template("admin/menu_add.html",form = form,menu_dict = menu_dict)
+    return render_template("admin/menu_add.html",form = form)
 
 
 @admin.route("/menu/list/<int:page>/",methods = ["GET"])
 @admin.route("/menu/list/",methods = ["GET"])
 def menu_list(page = None):
     '''菜单列表'''
-    menu_dict = menu_html ()
     auth_list = Base_permission_list (request.permission_code_list)
     if not page:
         page = 1
     page_data = Menu.query.paginate(page = page,per_page = 10)
-    return render_template("admin/menu_list.html",page_data = page_data,menu_dict = menu_dict,auth_list = auth_list)
+    return render_template("admin/menu_list.html",page_data = page_data,auth_list = auth_list)
 
 
 @admin.route("/group/add/",methods = ["GET","POST"])
 def group_add():
     '''添加组'''
-    menu_dict = menu_html ()
     form= GroupForm()
     if request.method == 'POST' and form.validate():
         group = Group(
@@ -79,11 +76,11 @@ def group_add():
         db.session.commit()
         flash("添加组名称成功!","ok")
         return redirect(url_for("admin.group_add"))
-    return render_template("admin/group_add.html",form = form,menu_dict = menu_dict)
+    return render_template("admin/group_add.html",form = form)
 
 @admin.route("/user/add/",methods = ["GET","POST"])
 def user_add():
-    menu_dict = menu_html ()
+    '''添加管理员'''
     form = UserAddForm()
     if form.validate_on_submit():
         user = User(
@@ -105,23 +102,30 @@ def user_add():
             db.session.commit ()
         flash("添加管理员成功!","ok")
         return redirect(url_for("admin.user_add"))
-    return render_template("admin/user_add.html",form = form,menu_dict = menu_dict)
+    return render_template("admin/user_add.html",form = form)
 
 @admin.route("/user/list/<int:page>/",methods = ["GET"])
 @admin.route("/user/list/",methods = ["GET"])
 def user_list(page = None):
     '''权限列表'''
-    menu_dict = menu_html ()
     auth_list = Base_permission_list (request.permission_code_list)
     if not page:
         page = 1
     page_data = User.query.paginate(page = page,per_page = 10)
-    return render_template("admin/user_list.html",page_data = page_data,menu_dict = menu_dict,auth_list = auth_list)
+    return render_template("admin/user_list.html",page_data = page_data,auth_list = auth_list)
+
+@admin.route("/user/delete/<int:id>/")
+def user_delete(id = None):
+    auth = User.query.filter_by(id=id).first_or_404()
+    db.session.delete(auth)
+    db.session.commit()
+    flash("删除标签成功！", "ok")
+    return redirect(url_for('admin.user_list', page=1))
 
 
 @admin.route("/role/add/",methods = ["GET","POST"])
 def role_add():
-    menu_dict = menu_html ()
+    '''角色添加'''
     form = RoleAddForm()
     if form.validate_on_submit():
         data = form.data
@@ -151,25 +155,22 @@ def role_add():
         except Exception as e:
             db.session.rollback()
             flash("角色添加失败","err")
-    return render_template("admin/role_add.html",form = form,menu_dict = menu_dict)
+    return render_template("admin/role_add.html",form = form)
 
 @admin.route("/role/list/<int:page>/",methods = ["GET"])
 @admin.route("/role/list/",methods = ["GET"])
 def role_list(page = None):
     '''权限列表'''
-    menu_dict = menu_html ()
     auth_list = Base_permission_list (request.permission_code_list)
     if not page:
         page = 1
     page_data = Role.query.paginate(page = page,per_page = 10)
-    return render_template("admin/role_list.html",page_data = page_data,menu_dict = menu_dict,auth_list = auth_list)
-
-
+    return render_template("admin/role_list.html",page_data = page_data,auth_list = auth_list)
 
 
 @admin.route("/auth/add/",methods = ["GET","POST"])
 def auth_add():
-    menu_dict = menu_html ()
+    '''权限添加'''
     form = AuthAddForm()
     if form.validate_on_submit():
         auth_name = Auth.query.filter_by(name = form.data.get("name")).count()
@@ -206,18 +207,17 @@ def auth_add():
         db.session.commit()
         flash ("添加权限成功!","ok")
         return redirect (url_for ("admin.auth_add"))
-    return render_template("admin/auth_add.html",form = form,menu_dict = menu_dict)
+    return render_template("admin/auth_add.html",form = form)
 
 
 @admin.route("/auth/list/<int:page>/",methods = ["GET"])
 @admin.route("/auth/list/",methods = ["GET"])
 def auth_list(page = None):
     '''权限列表'''
-    menu_dict = menu_html ()
     auth_list = Base_permission_list (request.permission_code_list)
     if not page:
         page = 1
     page = int(request.args.get("page", 1))
     page_data = Auth.query.paginate(page = page,per_page = 10)
-    return render_template("admin/auth_list.html",page_data = page_data,menu_dict = menu_dict,auth_list = auth_list)
+    return render_template("admin/auth_list.html",page_data = page_data,auth_list = auth_list)
 

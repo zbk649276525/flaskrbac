@@ -3,7 +3,7 @@
 #date:"2018-01-22,20:19"
 from datetime import datetime
 from . import db
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash\
 
 #用户表
 class User(db.Model):
@@ -14,7 +14,7 @@ class User(db.Model):
     password = db.Column (db.String (100))
     email = db.Column(db.String(32))
     face = db.Column (db.String (255))  # 头像
-    roles= db.relationship('Role',secondary = 'user_roles',backref = 'user_role')
+    roles= db.relationship('Role',secondary = 'user_roles',backref = 'user_role',passive_deletes = True)
 
 
     def __repr__ (self):
@@ -69,7 +69,7 @@ class Menu(db.Model):
 
     __tablename__ = 'menus'
     id = db.Column (db.Integer,primary_key = True)
-    name = db.Column (db.String (32))
+    name = db.Column (db.String (32),unique=True)
 
 
 

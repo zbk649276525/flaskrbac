@@ -49,7 +49,7 @@
                                         {% endif %}
                                         &nbsp;
                                         {% if auth_list.has_delete() %}
-                                            <a href="" class="label label-danger">删除</a>
+                                            <a href="{{ url_for("admin.auth_delete",id=v.id) }}" class="label label-danger">删除</a>
                                         {% else %}
                                         -------
                                         {% endif %}

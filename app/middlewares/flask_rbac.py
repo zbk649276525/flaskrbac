@@ -3,7 +3,8 @@
 #date:"2018-01-29,22:40"
 import re
 from app.admin import admin
-from flask import request,current_app,session,redirect,url_for
+from flask import request,current_app,session,redirect,url_for,g
+from app.tempaltetags.rbac_menu import menu_html
 
 
 @admin.before_app_request
@@ -20,6 +21,9 @@ def process_request():
     permission_dict = session.get(current_app.config["PERMISSION_URL_DICT_KEY"])#获取放置在session中的当前用户的权限
     if not permission_dict:#如果session中没有值，说明用户还未登陆，跳转到登录页面
         return redirect (url_for("admin.login"))
+
+
+
     flag = False#设置 标志位
     for group_id,code_url in permission_dict.items ():
         for db_url in code_url ["urls"]:
@@ -31,5 +35,6 @@ def process_request():
                 break
         if flag:
             break
+    g.menu_dict = menu_html()
     if not flag:
         return "无权访问"
