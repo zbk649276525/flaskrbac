@@ -58,15 +58,15 @@
   如果是第一次执行数据库迁移命令时，必须在你的`db.init_app(app)` 后面将所有的数据表导入，不然是不会创建数据表的如
 
   ```python
-     	db.init_app (app)
-      from .models import Auth,Role,User,Group,Menu #这一步很重要，很重要，很重要
+  db.init_app (app)
+  from .models import Auth,Role,User,Group,Menu #这一步很重要，很重要，很重要
   ```
 
 + **利用`app.before_app_request` 达到Django 的中间件效果:four_leaf_clover:**
 
   可以在`config` 文件中 配置上白名单免验证路径，注意 flask 中静态文件的请求也会走伪中间件，在白名单中把以static开头的这些url 都加上`VALID_URL = ["/admin/login/","/static.*"]` 不然可能会出现页面加载有样式，其他代码同Django rbac 初始化 权限信息同Django rbac 只是查询的方式有一点不同
 
-+ **在视图函数外使用数据库查询操作**
++ **在视图函数外使用数据库查询操作**:four_leaf_clover:
 
   如果使用了`create_app` 来做的话，貌似你在其他的地方就不能使用数据库查询操作了，如在form表单中你需要执行数据库查询操作，如果直接写的话会报错
 
@@ -81,7 +81,7 @@
   或者不要写create_app 这个函数了，直接实例化Flask类
 
   ```python
-  def __init__(self,*args,**kwargs):#重写FlaskForm的__init__ 方法
+  def __init__(self,*args,**kwargs):#重写FlaskForm的__init__ 方法 推荐使用这种方法
       super ().__init__ (*args,**kwargs)
       self.menu_id.choices = [(v.id,v.name) for v in Menu.query.all()]
       
@@ -90,7 +90,7 @@
           form.menu_id.choices = [(v.id,v.name) for v in Menu.query.all ()]
 
   from flask_sqlalchemy import SQLAlchemy # 在__init__ 文件中直接实例化Flask类
-  from flask import Flask
+  from flask import Flask					# 这样写可以在form表单中直接做数据库查询操作
   app = Flask(__name__)
   from config import Config
   app.config.from_object(Config)
@@ -99,7 +99,7 @@
   from .models import Auth,Role,User,Group,Menu
   ```
 
-+ **Not a valid choice 提交表单报错**
++ **Not a valid choice 提交表单报错**:four_leaf_clover:
 
   在执行表单提交的时候(**自关联权限的时候Null为空表示可以作为菜单**) 但是这时候,如果你不填值的话会报错
 
@@ -115,14 +115,14 @@
       yyy = xxx(label = 'ddd',........)
   ```
 
-+ ###### Flask 多重路由指向同一视图
++ **Flask 多重路由指向同一视图函数**:four_leaf_clover:
 
   ```python
   @admin.route("/menu/list/<int:page>/",methods = ["GET"])#有页码走这里
   @admin.route("/menu/list/",methods = ["GET"])#无页码走这里 
   ```
 
-+ **解决sqlalchemy讨厌的warning提示** 
++ **解决sqlalchemy讨厌的warning提示** :four_leaf_clover:
 
   ```python
   def create_app():
@@ -132,13 +132,13 @@
       db.init_app (app)
   ```
 
-+ **每次重启项目，都会重新登录**
++ **每次重启项目，都会重新登录**:four_leaf_clover:
 
   ```python
   #参照狗书 如果想提高系统安全性，SECRET_KEY = os.urandom (24) 写成这样，每次都会随机生成24位随机字符串，但是每次都需要重新登录，所以还是改成一般的 SECRET_KEY = 'sssss'
   ```
 
-+ **使用全局变量g** 
++ **使用全局变量g** :four_leaf_clover:
 
   ```python
   #自动生成表单的函数每个视图函数都需要导入，这时候可以用g来保存这个值
@@ -146,7 +146,7 @@
   g.menu_dict = menu_html() # g 要放在 伪中间件中验证通过后，不然取不到值
   ```
 
-+ **Flask-Migrate 检测不到`db.string()` 长度的变化**
++ **Flask-Migrate 检测不到`db.string()` 长度的变化**:four_leaf_clover:
 
   ```python
   # 修改migrations下的env.py 添加参数compare_type = True
@@ -154,6 +154,20 @@
        target_metadata=target_metadata,
        process_revision_directives=process_revision_directives,
        compare_type = True,   #compare_type默认为False,不检测数据变化
+  ```
+
++ **伪中间件的使用**:four_leaf_clover:
+
+  如果将伪中间件写做单独的一个文件，这个时候你需要在你的视图函数上面导入这个文件，然后中间件就可以生效了`from app.middlewares import flask_rbac` 
+
++ **更新`Select `下拉框中的值**:four_leaf_clover:
+
+   在数据库中新增记录的时候并不会实时显示到Select 下拉框中，这时候需要在表单中这么写，就能达到实时更新的效果，所以上面的三种在视图函数外执行查询操作，还是得用这种方法，django 也可以用这种方法达到同样的效果
+
+  ```python
+  def __init__(self,*args,**kwargs):#重写FlaskForm的__init__ 方法 
+      super ().__init__ (*args,**kwargs)
+      self.menu_id.choices = [(v.id,v.name) for v in Menu.query.all()]
   ```
 
   ​
