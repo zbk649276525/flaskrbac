@@ -23,7 +23,6 @@ class User(db.Model):
     def check_pwd(self,pwd):
         return check_password_hash(self.password,pwd)
 
-
 # 角色表
 class Role(db.Model):
 
@@ -105,7 +104,6 @@ class User_Roles(db.Model):
 
 
 #角色权限表
-
 class Role_auths(db.Model):
 
     __tablename__ = 'role_auths'
